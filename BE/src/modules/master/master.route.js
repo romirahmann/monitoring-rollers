@@ -1,0 +1,208 @@
+import { successResponse } from "../../common/response.js";
+import {
+  categories_machineRepository,
+  machinesRepository,
+  positionsRepository,
+  rollersRepository,
+  types_machineRepository,
+} from "./master.repository.js";
+import {
+  categoriesMachineServices,
+  machinesServices,
+  positionsServices,
+  rollersServices,
+  typesMachineServices,
+} from "./master.service.js";
+
+export default async function (fastify) {
+  const repository = {
+    categoriesMachine: categories_machineRepository(fastify.db),
+    typesMachine: types_machineRepository(fastify.db),
+    machines: machinesRepository(fastify.db),
+    rollers: rollersRepository(fastify.db),
+    positions: positionsRepository(fastify.db),
+  };
+
+  const services = {
+    categoriesMachine: categoriesMachineServices({
+      repository: repository.categoriesMachine,
+      fastify,
+    }),
+    typesMachine: typesMachineServices({
+      repository: repository.typesMachine,
+      fastify,
+    }),
+    machines: machinesServices({ repository: repository.machines, fastify }),
+    rollers: rollersServices({ repository: repository.rollers, fastify }),
+    positions: positionsServices({ repository: repository.positions, fastify }),
+  };
+
+  // Routes for categories_machine
+
+  fastify.get("/categories-machine", async (req, res) => {
+    const categories = await services.categoriesMachine.getAll();
+    return successResponse(res, { data: categories });
+  });
+
+  fastify.get("/categories-machine/:id", async (req, res) => {
+    const { id } = req.params;
+    const category = await services.categoriesMachine.getById(id);
+    return successResponse(res, { data: category });
+  });
+
+  fastify.post("/categories-machine", async (req, res) => {
+    const newCategory = await services.categoriesMachine.create(req.body);
+    return successResponse(res, { data: newCategory });
+  });
+
+  fastify.put("/categories-machine/:id", async (req, res) => {
+    const { id } = req.params;
+    const updatedCategory = await services.categoriesMachine.update(
+      id,
+      req.body,
+    );
+    return successResponse(res, { data: updatedCategory });
+  });
+
+  fastify.delete("/categories-machine/deactived/:id", async (req, res) => {
+    const { id } = req.params;
+    await services.categoriesMachine.update(id, { is_active: 0 });
+    return successResponse(res, { message: "Category machine deactivated" });
+  });
+
+  fastify.delete("/categories-machine/deleted/:id", async (req, res) => {
+    const { id } = req.params;
+    await services.categoriesMachine.delete(id);
+    return successResponse(res, { message: "Category machine deleted" });
+  });
+
+  // Routes for type_machine
+  fastify.get("/type-machine", async (req, res) => {
+    const types = await services.typesMachine.getAll();
+    return successResponse(res, { data: types });
+  });
+  fastify.get("/type-machine/:id", async (req, res) => {
+    const { id } = req.params;
+    const type = await services.typesMachine.getById(id);
+    return successResponse(res, { data: type });
+  });
+  fastify.get("/type/name/:name", async (req, res) => {
+    const { name } = req.params;
+    const type = await services.typesMachine.getByName(name);
+    return successResponse(res, { data: type });
+  });
+  fastify.post("/type-machine", async (req, res) => {
+    const newType = await services.typesMachine.create(req.body);
+    return successResponse(res, { data: newType });
+  });
+  fastify.put("/type-machine/:id", async (req, res) => {
+    const { id } = req.params;
+    const updatedType = await services.typesMachine.update(id, req.body);
+    return successResponse(res, { data: updatedType });
+  });
+  fastify.delete("/type-machine/deactived/:id", async (req, res) => {
+    const { id } = req.params;
+    await services.typesMachine.update(id, { is_active: 0 });
+    return successResponse(res, { message: "Type machine deactivated" });
+  });
+  fastify.delete("/type-machine/:id", async (req, res) => {
+    const { id } = req.params;
+    await services.typesMachine.delete(id);
+    return successResponse(res, { message: "Type machine deleted" });
+  });
+
+  // Routes for machines
+  fastify.get("/machines", async (req, res) => {
+    const machines = await services.machines.getAll();
+    return successResponse(res, { data: machines });
+  });
+  fastify.get("/machines/:id", async (req, res) => {
+    const { id } = req.params;
+    const machine = await services.machines.getById(id);
+    return successResponse(res, { data: machine });
+  });
+
+  fastify.post("/machines", async (req, res) => {
+    const newMachine = await services.machines.create(req.body);
+    return successResponse(res, { data: newMachine });
+  });
+  fastify.put("/machines/:id", async (req, res) => {
+    const { id } = req.params;
+    const updatedMachine = await services.machines.update(id, req.body);
+    return successResponse(res, { data: updatedMachine });
+  });
+  fastify.delete("/machines/deactived/:id", async (req, res) => {
+    const { id } = req.params;
+    await services.machines.update(id, { is_active: 0 });
+    return successResponse(res, { message: "Machine deactivated" });
+  });
+  fastify.delete("/machines/:id", async (req, res) => {
+    const { id } = req.params;
+    await services.machines.delete(id);
+    return successResponse(res, { message: "Machine deleted" });
+  });
+
+  //   ROUTE FOR ROLLERS
+  fastify.get("/rollers", async (req, res) => {
+    const rollers = await services.rollers.getAll();
+    return successResponse(res, { data: rollers });
+  });
+
+  fastify.get("/roller/:id", async (req, res) => {
+    const { id } = req.params;
+    const roller = await services.rollers.getById(id);
+    return successResponse(res, { data: roller });
+  });
+
+  fastify.post("/roller", async (req, res) => {
+    const newRoller = await services.rollers.create(req.body);
+    return successResponse(res, { data: newRoller });
+  });
+
+  fastify.put("/roller/:id", async (req, res) => {
+    const { id } = req.params;
+    const updatedRoller = await services.rollers.update(id, req.body);
+    return successResponse(res, { data: updatedRoller });
+  });
+
+  fastify.delete("/roller/deactived/:id", async (req, res) => {
+    const { id } = req.params;
+    await services.rollers.update(id, { is_active: 0 });
+    return successResponse(res, { message: "Roller deactivated" });
+  });
+
+  fastify.delete("/roller/:id", async (req, res) => {
+    const { id } = req.params;
+    await services.rollers.delete(id);
+    return successResponse(res, { message: "Roller deleted" });
+  });
+
+  // ROUTES POSITION
+  fastify.get("/positions", async (req, res) => {
+    const positions = await services.positions.getAll();
+    return successResponse(res, { data: positions });
+  });
+
+  fastify.get("/position/:id", async (req, res) => {
+    const { id } = req.params;
+    const position = await services.positions.getById(id);
+    return successResponse(res, { data: position });
+  });
+
+  fastify.post("/position", async (req, res) => {
+    const newPosition = await services.positions.create(req.body);
+    return successResponse(res, { data: newPosition });
+  });
+
+  fastify.put("/position/:id", async (req, res) => {
+    const { id } = req.params;
+    const updatedPosition = await services.positions.update(id, req.body);
+    return successResponse(res, { data: updatedPosition });
+  });
+
+  fastify.delete("/position/:id", async (req, res) => {
+    const { id } = req.params;
+    await services.positions.delete(id);
+    return successResponse(res, { message: "Position deleted" });
+  });
+}
