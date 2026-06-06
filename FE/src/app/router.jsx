@@ -6,6 +6,7 @@ import { LayoutAuth } from "../layouts/auth.jsx";
 import { LandingPage } from "../features/dashboard/pages/LandingPage.jsx";
 import { MachinePage } from "../features/machines/pages/MachinePage.jsx";
 import { PositionPage } from "../features/machines/pages/possitionPage.jsx";
+import { DetailPage } from "../features/machines/pages/DetailPage.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ export const router = createBrowserRouter([
           {
             path: "/machine-page/:category/position/:unit",
             element: <PositionPage />,
+          },
+          {
+            path: "/machine-page/:machine_id/position/:position_id/detail",
+            element: <DetailPage />,
           },
         ],
       },

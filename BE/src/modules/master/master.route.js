@@ -189,6 +189,12 @@ export default async function (fastify) {
     return successResponse(res, { data: position });
   });
 
+  fastify.get("/positions/machine/:machine_id", async (req, res) => {
+    const { machine_id } = req.params;
+    const positions = await services.positions.getByMachineId(machine_id);
+    return successResponse(res, { data: positions });
+  });
+
   fastify.post("/position", async (req, res) => {
     const newPosition = await services.positions.create(req.body);
     return successResponse(res, { data: newPosition });

@@ -319,6 +319,14 @@ export const positionsRepository = (db) => ({
     return position;
   },
 
+  getByMachineId: async (machine_id) => {
+    const positions = await db("positions as p")
+      .leftJoin("machines as m", "m.id", "p.machine_id")
+      .select("p.*", "m.name as machine_name")
+      .where("p.machine_id", machine_id);
+    return positions;
+  },
+
   create: async (data) => {
     const [id] = await db("positions").insert(data);
     return id;

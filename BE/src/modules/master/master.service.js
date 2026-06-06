@@ -139,6 +139,11 @@ export const positionsServices = ({ repository, fastify }) => ({
     return position;
   },
 
+  getByMachineId: async (machine_id) => {
+    const positions = await repository.getByMachineId(machine_id);
+    return positions;
+  },
+
   create: async (data) => {
     const newPosition = await repository.create(data);
     return newPosition;
