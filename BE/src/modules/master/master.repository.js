@@ -7,6 +7,13 @@ export const categories_machineRepository = (db) => ({
       .first();
     return category_machine;
   },
+  getByName: async (name) => {
+    const categoryName = name.toLowerCase();
+    const category_machine = await db("categories_machine")
+      .where("name", categoryName)
+      .first();
+    return category_machine;
+  },
   create: async (data) => {
     const [id] = await db("categories_machine").insert(data);
     const newCategory_machine = await db("categories_machine")
@@ -27,12 +34,24 @@ export const types_machineRepository = (db) => ({
   getAll: async () =>
     await db("type_machine as tm")
       .leftJoin("categories_machine as cm", "cm.id", "tm.category_id")
-      .select("tm.id", "tm.name", "tm.category_id", "cm.name as category_name"),
+      .select(
+        "tm.id",
+        "tm.name",
+        "tm.is_active",
+        "tm.category_id",
+        "cm.name as category_name",
+      ),
 
   getById: async (id) => {
     const type_machine = await db("type_machine as tm")
       .leftJoin("categories_machine as cm", "cm.id", "tm.category_id")
-      .select("tm.id", "tm.name", "tm.category_id", "cm.name as category_name")
+      .select(
+        "tm.id",
+        "tm.name",
+        "tm.is_active",
+        "tm.category_id",
+        "cm.name as category_name",
+      )
       .where("tm.id", id)
       .first();
     return type_machine;
@@ -44,6 +63,8 @@ export const types_machineRepository = (db) => ({
         .select(
           "tm.id",
           "tm.name",
+          "tm.is_active",
+          "tm.description",
           "tm.category_id",
           "cm.name as category_name",
         )
@@ -73,6 +94,7 @@ export const types_machineRepository = (db) => ({
     return newType_machine;
   },
   update: async (id, data) => {
+    console.log("data di repository", data);
     await db("type_machine").where({ id }).update(data);
   },
   delete: async (id) => {

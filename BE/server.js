@@ -18,7 +18,7 @@ const start = async () => {
     ---------------------------------
     `);
   } catch (error) {
-    app.log.error(err);
+    app.log.error(error);
     process.exit(1);
   }
 };

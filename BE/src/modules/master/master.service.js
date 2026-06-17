@@ -8,6 +8,11 @@ export const categoriesMachineServices = ({ repository, fastify }) => ({
     const category = await repository.getById(id);
     return category;
   },
+  getByName: async (name) => {
+    const categoryName = name.toLowerCase();
+    const category = await repository.getByName(categoryName);
+    return category;
+  },
   create: async (data) => {
     const newCategory = await repository.create(data);
     return newCategory;
@@ -40,7 +45,7 @@ export const typesMachineServices = ({ repository, fastify }) => ({
   },
   getByName: async (name) => {
     const type = await repository.getByName(name);
-    console.log(name, type);
+
     return type;
   },
   create: async (data) => {
@@ -52,7 +57,24 @@ export const typesMachineServices = ({ repository, fastify }) => ({
     if (!exiting) {
       throw new Error("Type machine not found");
     }
-    return await repository.update(id, data);
+
+    let payload = {
+      name: data.name,
+      category_id: exiting.category_id,
+      description: data.description,
+    };
+    return await repository.update(id, payload);
+  },
+  softDelete: async (id) => {
+    const exiting = await repository.getById(id);
+    if (!exiting) {
+      throw new Error("Type machine not found");
+    }
+
+    let payload = {
+      is_active: 0,
+    };
+    return await repository.update(id, payload);
   },
   delete: async (id) => {
     const exiting = await repository.getById(id);

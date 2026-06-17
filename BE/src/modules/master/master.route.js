@@ -92,17 +92,31 @@ export default async function (fastify) {
     return successResponse(res, { data: type });
   });
   fastify.post("/type-machine", async (req, res) => {
-    const newType = await services.typesMachine.create(req.body);
+    const body = req.body;
+
+    const getIdCategory = await services.categoriesMachine.getByName(
+      body.category,
+    );
+
+    const payload = {
+      name: body.name,
+      category_id: getIdCategory.id,
+      description: body.description,
+    };
+
+    const newType = await services.typesMachine.create(payload);
     return successResponse(res, { data: newType });
   });
   fastify.put("/type-machine/:id", async (req, res) => {
     const { id } = req.params;
-    const updatedType = await services.typesMachine.update(id, req.body);
+    let body = req.body;
+
+    const updatedType = await services.typesMachine.update(id, body);
     return successResponse(res, { data: updatedType });
   });
-  fastify.delete("/type-machine/deactived/:id", async (req, res) => {
+  fastify.patch("/type-machine/deactived/:id", async (req, res) => {
     const { id } = req.params;
-    await services.typesMachine.update(id, { is_active: 0 });
+    await services.typesMachine.softDelete(id);
     return successResponse(res, { message: "Type machine deactivated" });
   });
   fastify.delete("/type-machine/:id", async (req, res) => {
