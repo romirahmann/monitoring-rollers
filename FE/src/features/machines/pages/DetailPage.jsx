@@ -5,16 +5,97 @@ import { useMachine } from "../hooks/use-machine.js";
 import { usePositionById } from "../hooks/use-position-byId.js";
 import { usePositionStore } from "../store/position.store.js";
 import { SharedButton } from "../../../shared/components/Button.jsx";
+import { SharedTable } from "../../../shared/components/table.jsx";
+import { useHistoryRoller } from "../hooks/use-history.js";
+import { Modal } from "../../../shared/components/Modal.jsx";
+import { useRollerByCategory } from "../hooks/use-rollers.js";
+import { useState } from "react";
+import { RollerForm } from "../components/RollerForm.jsx";
 
 export function DetailPage() {
   const navigate = useNavigate();
   const { machine_id, position_id } = useParams();
 
+  useHistoryRoller(machine_id);
+  useRollerByCategory(machine_id);
   useMachine(machine_id);
-  const machineById = useMachineStore((state) => state.machineById);
-
   usePositionById(position_id);
+
+  const machineById = useMachineStore((state) => state.machineById);
   const positionById = usePositionStore((state) => state.positionById);
+
+  const [modalForm, setModalForm] = useState({
+    isOpen: false,
+    type: "Add",
+    data: null,
+  });
+
+  const reportColumns = [
+    {
+      field: "roller_code",
+      header: "Kode Roller",
+      sortable: true,
+    },
+    {
+      field: "size_1",
+      header: "Ukuran 1 (mm)",
+      sortable: true,
+    },
+    {
+      field: "size_2",
+      header: "Ukuran 2 (mm)",
+      sortable: true,
+    },
+    {
+      field: "size_3",
+      header: "Ukuran 3 (mm)",
+      sortable: true,
+    },
+    {
+      field: "description",
+      header: "Keterangan",
+    },
+  ];
+
+  const rollerColumns = [
+    {
+      field: "code",
+      header: "Roller Code",
+      sortable: true,
+    },
+    {
+      field: "point_no",
+      header: "Ukuran",
+      sortable: true,
+    },
+    {
+      field: "type",
+      header: "Type",
+      sortable: true,
+    },
+    {
+      field: "initial_size",
+      header: "Initial Size",
+      sortable: true,
+    },
+    {
+      field: "minimun_size",
+      header: "Minimum Size",
+      sortable: true,
+    },
+    {
+      field: "status",
+      header: "Status",
+      sortable: true,
+    },
+    {
+      field: "installed_at",
+      header: "Installed At",
+      sortable: true,
+    },
+  ];
+
+  const reportData = [];
 
   return (
     <>
@@ -35,12 +116,60 @@ export function DetailPage() {
             </div>
           </div>
         </div>
-        <div className="mt-1">
-          <SharedButton variant="outline" size="sm" icon={<Plus size={18} />}>
-            {" "}
-            Insert Report{" "}
-          </SharedButton>
+
+        <div className="bg-white border rounded-xl p-6">
+          <div className="flex justify-between items-center mb-5">
+            <div>
+              <h2 className="text-lg uppercase font-semibold">Rollers</h2>
+
+              <p className="text-sm text-gray-500">
+                Roller management, for {positionById?.position} position.
+              </p>
+            </div>
+
+            <SharedButton
+              onClick={() => setModalForm({ ...modalForm, isOpen: true })}
+              variant="primary"
+              size="sm"
+              icon={<Plus size={18} />}
+            >
+              Insert Roller
+            </SharedButton>
+          </div>
+          <SharedTable columns={rollerColumns}></SharedTable>
         </div>
+
+        {/* <div className="bg-white border rounded-xl p-6">
+          <div className="flex justify-between items-center mb-5">
+            <div>
+              <h2 className="text-lg font-semibold">History Report</h2>
+
+              <p className="text-sm text-gray-500">
+                Measurement history for roller position
+              </p>
+            </div>
+
+            <SharedButton variant="primary" size="sm" icon={<Plus size={18} />}>
+              Insert Report
+            </SharedButton>
+          </div>
+
+          <SharedTable columns={reportColumns} data={reportData} />
+
+          <Modal></Modal>
+        </div> */}
+
+        <Modal
+          isOpen={modalForm.isOpen}
+          title={`${modalForm.type} Roller`}
+          onClose={() => setModalForm({ isOpen: false, type: "", data: null })}
+        >
+          <RollerForm
+            mode={modalForm.type}
+            categoryMachineId={machine_id}
+            initialData={modalForm.data}
+          />
+        </Modal>
       </div>
     </>
   );

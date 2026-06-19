@@ -236,7 +236,6 @@ export const rollersRepository = (db) => ({
         "r.status",
         "r.installed_at",
         "r.category_machine_id",
-
         "cm.name as category_machine_name",
       )
       .where("r.id", id)

@@ -169,7 +169,9 @@ export default async function (fastify) {
   });
 
   fastify.post("/roller", async (req, res) => {
+    console.log(req.body);
     const newRoller = await services.rollers.create(req.body);
+
     return successResponse(res, { data: newRoller });
   });
 

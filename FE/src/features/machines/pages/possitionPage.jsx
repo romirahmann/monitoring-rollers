@@ -3,25 +3,46 @@ import { SharedTable } from "../../../shared/components/table.jsx";
 import { CardPosition } from "../components/CardPosition.jsx";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../../shared/api/axios.js";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMachine } from "../hooks/use-machine.js";
 import { useMachineStore } from "../store/machine.store.js";
 import { usePosition } from "../hooks/use-position.js";
 import { usePositionStore } from "../store/position.store.js";
+import { Modal } from "../../../shared/components/Modal.jsx";
+import { PositionForm } from "../components/PositionForm.jsx";
+import { useAlertStore } from "../../../store/alert-store.js";
 
 export function PositionPage() {
   const navigate = useNavigate();
   const { category, unit } = useParams();
-
+  const [modal, setModal] = useState({
+    isOpen: false,
+    type: "Add",
+    data: null,
+  });
   useMachine(unit);
-
+  const { showAlert } = useAlertStore();
   const machineById = useMachineStore((state) => state.machineById);
 
   usePosition(machineById?.id);
+  const { getPositionByMachineId } = usePosition(machineById?.id);
+  let positionByMachineId = [];
+  positionByMachineId = usePositionStore((state) => state.positionByMachineId);
+  const { setPositionByMachineId } = usePositionStore((state) => state);
 
-  const positionByMachineId = usePositionStore(
-    (state) => state.positionByMachineId,
-  );
+  const handleFormSubmit = async () => {
+    getPositionByMachineId();
+    showAlert({
+      type: "success",
+      message: `${modal.type} position successfully!`,
+    });
+
+    setModal({
+      isOpen: false,
+      type: "Add",
+      data: null,
+    });
+  };
 
   return (
     <div className="max-w-full px-3 space-y-6">
@@ -51,6 +72,7 @@ export function PositionPage() {
         <h1 className="text-xl font-bold">Position</h1>
 
         <button
+          onClick={() => setModal({ isOpen: true, type: "Add", data: null })}
           className="
               rounded-2xl bg-zinc-900 px-5 py-3
               text-sm font-semibold text-white
@@ -67,20 +89,72 @@ export function PositionPage() {
       <hr />
 
       <div className="grid grid-cols-6 gap-4">
-        {positionByMachineId.map((position) => (
-          <button
-            onClick={() =>
-              navigate(
-                `/machine-page/${position.machine_id}/position/${position.id}/detail`,
-              )
-            }
-            key={position.id}
-            className="col-span-1"
-          >
-            <CardPosition position={position.position} />
-          </button>
-        ))}
+        {positionByMachineId.length > 0 ? (
+          positionByMachineId.map((position) => (
+            <button
+              key={position.id}
+              onClick={() =>
+                navigate(
+                  `/machine-page/${position.machine_id}/position/${position.id}/detail`,
+                )
+              }
+              className="col-span-1"
+            >
+              <CardPosition position={position.position} />
+            </button>
+          ))
+        ) : (
+          <div className="col-span-6">
+            <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed rounded-2xl bg-gray-50">
+              <div className="text-5xl mb-4">📍</div>
+
+              <h3 className="text-lg font-semibold text-gray-800">
+                No Positions Available
+              </h3>
+
+              <p className="mt-2 text-sm text-gray-500 max-w-md text-center">
+                This machine does not have any positions yet. Click{" "}
+                <span className="font-medium">"Add Position"</span> to create
+                the first position.
+              </p>
+
+              <button
+                onClick={() =>
+                  setModal({ isOpen: true, type: "Add", data: null })
+                }
+                className="
+                mt-6
+                rounded-xl
+                bg-zinc-900
+                px-5
+                py-3
+                text-sm
+                font-semibold
+                text-white
+                transition-all
+                hover:bg-zinc-800
+              "
+              >
+                + Add First Position
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
+      <Modal
+        isOpen={modal.isOpen}
+        title={`${modal.type} Position`}
+        onClose={() => setModal({ isOpen: false, type: "", data: null })}
+      >
+        <PositionForm
+          machineId={machineById?.id}
+          mode={modal.type}
+          initialData={modal.data}
+          onClose={() => setModal({ isOpen: false, type: "", data: null })}
+          onSubmit={handleFormSubmit}
+        />
+      </Modal>
     </div>
   );
 }

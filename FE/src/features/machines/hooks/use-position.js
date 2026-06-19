@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { usePositionStore } from "../store/position.store.js";
 import { api } from "../../../shared/api/axios.js";
 
@@ -7,13 +7,19 @@ export const usePosition = (machineId) => {
     (state) => state.setPositionByMachineId,
   );
 
+  const getPositionByMachineId = useCallback(async () => {
+    if (!machineId) return;
+
+    const res = await api.get(`/master/positions/machine/${machineId}`);
+
+    setPositionByMachineId(res.data.data);
+  }, [machineId, setPositionByMachineId]);
+
   useEffect(() => {
-    const initPosition = async () => {
-      console.log("Machine ID: ", machineId);
-      let res = await api.get(`/master/positions/machine/${machineId}`);
-      console.log("Get Position: ", res.data.data);
-      setPositionByMachineId(res.data.data);
-    };
-    initPosition();
-  }, [machineId]);
+    getPositionByMachineId();
+  }, [getPositionByMachineId]);
+
+  return {
+    getPositionByMachineId,
+  };
 };
