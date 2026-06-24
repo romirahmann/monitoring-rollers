@@ -39,6 +39,7 @@ export const types_machineRepository = (db) => ({
         "tm.name",
         "tm.is_active",
         "tm.category_id",
+        "tm.image",
         "cm.name as category_name",
       ),
 
@@ -50,6 +51,7 @@ export const types_machineRepository = (db) => ({
         "tm.name",
         "tm.is_active",
         "tm.category_id",
+        "tm.image",
         "cm.name as category_name",
       )
       .where("tm.id", id)
@@ -66,6 +68,7 @@ export const types_machineRepository = (db) => ({
           "tm.is_active",
           "tm.description",
           "tm.category_id",
+          "tm.image",
           "cm.name as category_name",
         )
         .where("cm.name", name);
@@ -113,6 +116,7 @@ export const machinesRepository = (db) => ({
         "m.name",
         "m.unit",
         "m.is_active",
+        "m.image",
         "m.type_machine_id",
         "tm.name as type_name",
         "tm.category_id",
@@ -129,6 +133,7 @@ export const machinesRepository = (db) => ({
         "m.unit",
         "m.is_active",
         "m.type_machine_id",
+        "m.image",
         "tm.name as type_name",
         "tm.category_id",
         "cm.name as category_name",
@@ -343,7 +348,7 @@ export const positionsRepository = (db) => ({
   getByMachineId: async (machine_id) => {
     const positions = await db("positions as p")
       .leftJoin("machines as m", "m.id", "p.machine_id")
-      .select("p.*", "m.name as machine_name")
+      .select("p.*", "m.name as machine_name", "m.image")
       .where("p.machine_id", machine_id);
     return positions;
   },

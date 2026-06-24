@@ -1,3 +1,5 @@
+import { uploadService } from "../uploads/upload.service.js";
+
 // KATEGORI MESIN
 export const categoriesMachineServices = ({ repository, fastify }) => ({
   getAll: async () => {
@@ -49,8 +51,28 @@ export const typesMachineServices = ({ repository, fastify }) => ({
     return type;
   },
   create: async (data) => {
-    const newType = await repository.create(data);
-    return newType;
+    let filename = null;
+    let { name, description, category_id } = data;
+
+    if (data.image) {
+      const uploaded = await uploadService.saveFile(data.image);
+      filename = uploaded.filename;
+    }
+
+    // console.log(name.value, description.value);
+    const payload = {
+      name: name?.value,
+      description: description?.value,
+      category_id: category_id,
+      image: filename,
+    };
+
+    // console.log("PAYLOAD CREATE TYPE MACHINE: ", category);
+
+    const newType = await repository.create(payload);
+    console.log("RETURN: ", newType);
+    return true;
+    // return true;
   },
   update: async (id, data) => {
     const exiting = await repository.getById(id);
@@ -99,7 +121,22 @@ export const machinesServices = ({ repository, fastify }) => ({
     const categoryName = name.toLowerCase();
   },
   create: async (data) => {
-    const newMachine = await repository.create(data);
+    let filename = null;
+    let { name, unit, type_machine_id } = data;
+
+    if (data.image) {
+      const uploaded = await uploadService.saveFile(data.image);
+
+      filename = uploaded.filename;
+    }
+
+    const payload = {
+      name: name?.value,
+      unit: unit?.value,
+      type_machine_id: Number(type_machine_id?.value),
+      image: filename,
+    };
+    const newMachine = await repository.create(payload);
     return newMachine;
   },
   update: async (id, data) => {

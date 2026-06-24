@@ -73,7 +73,7 @@ export function TypePage({
     const confirmDelete = window.confirm(`Delete machine ${machine.name}?`);
 
     try {
-      let res = await api.patch(`/master/type-machine/deactived/${machine.id}`);
+      let res = await api.delete(`/master/type-machine/${machine.id}`);
       showAlert({
         type: "success",
         message: "Deleted Type Successfully!",
@@ -170,7 +170,7 @@ export function TypePage({
                 >
                   {/* Background */}
                   <img
-                    src={machine.image}
+                    src={`http://192.168.9.192:3000/uploads/${machine.image}`}
                     alt={machine.name}
                     className="
                     absolute inset-0

@@ -12,7 +12,10 @@ export function UnitForm({
     name: initialValues?.unitName || "",
     unit: initialValues?.unit || "",
     type_machine_id: typeMachines.id,
+    image: null,
   });
+
+  const [preview, setPreview] = useState(initialValues?.image_url || null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,12 +26,55 @@ export function UnitForm({
     }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setForm((prev) => ({
+      ...prev,
+      image: file,
+    }));
+
+    setPreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveImage = () => {
+    setPreview(null);
+
+    setForm((prev) => ({
+      ...prev,
+      image: null,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      let res = await api.post(`/master/machines`, form);
 
-      onSubmit();
+    try {
+      const formData = new FormData();
+
+      formData.append("name", form.name);
+      formData.append("unit", form.unit);
+      formData.append("type_machine_id", form.type_machine_id);
+
+      if (form.image) {
+        formData.append("image", form.image);
+      }
+
+      // for (let pair of formData.entries()) {
+      //   console.log(pair[0], pair[1]);
+      // }
+
+      const test = await api.post("/master/machines", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log(test);
+
+      onSubmit?.();
     } catch (err) {
       console.log(err);
     }
@@ -36,6 +82,102 @@ export function UnitForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Image Upload */}
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-zinc-700">
+          Machine Image
+        </label>
+
+        <div className="overflow-hidden rounded-2xl border border-zinc-300 bg-white">
+          {preview ? (
+            <div className="relative group">
+              <img
+                src={preview}
+                alt="Machine Preview"
+                className="h-56 w-full object-cover"
+              />
+
+              <div
+                className="
+                  absolute inset-0
+                  flex items-center justify-center gap-3
+                  bg-black/50
+                  opacity-0
+                  transition
+                  group-hover:opacity-100
+                "
+              >
+                <label
+                  htmlFor="machine-image"
+                  className="
+                    cursor-pointer
+                    rounded-xl
+                    bg-white
+                    px-4 py-2
+                    text-sm font-medium
+                    text-zinc-900
+                  "
+                >
+                  Change Image
+                </label>
+
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="
+                    rounded-xl
+                    bg-red-500
+                    px-4 py-2
+                    text-sm font-medium
+                    text-white
+                  "
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          ) : (
+            <label
+              htmlFor="machine-image"
+              className="
+                flex
+                h-56
+                cursor-pointer
+                flex-col
+                items-center
+                justify-center
+                gap-3
+                border-2
+                border-dashed
+                border-zinc-300
+                bg-zinc-50
+                text-zinc-500
+                transition
+                hover:border-zinc-500
+              "
+            >
+              <span className="text-5xl">📷</span>
+
+              <div className="text-center">
+                <p className="font-medium">Upload Machine Image</p>
+
+                <p className="text-sm text-zinc-400">
+                  JPG, PNG, WEBP (Max 10MB)
+                </p>
+              </div>
+            </label>
+          )}
+
+          <input
+            id="machine-image"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
+          />
+        </div>
+      </div>
+
       {/* Machine Name */}
       <div>
         <label className="mb-2 block text-sm font-semibold text-zinc-700">
@@ -119,9 +261,7 @@ export function UnitForm({
             focus:ring-zinc-200
           "
         >
-          <option key={typeMachines.id} value={typeMachines.id}>
-            {typeMachines.name}
-          </option>
+          <option value={typeMachines.id}>{typeMachines.name}</option>
         </select>
       </div>
 

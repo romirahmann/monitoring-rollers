@@ -32,6 +32,7 @@ export function PositionPage() {
 
   const handleFormSubmit = async () => {
     getPositionByMachineId();
+
     showAlert({
       type: "success",
       message: `${modal.type} position successfully!`,
@@ -43,6 +44,9 @@ export function PositionPage() {
       data: null,
     });
   };
+
+  console.log("MACHINE: ", machineById);
+  // console.log("POSITION: ", positionByMachineId);
 
   return (
     <div className="max-w-full px-3 space-y-6">
@@ -65,7 +69,11 @@ export function PositionPage() {
       </div>
 
       <div className="overflow-hidden rounded-xl border">
-        <img src={``} alt="" className="w-full h-[350px] object-cover" />
+        <img
+          src={`http://192.168.9.192:3000/uploads/${machineById.image}`}
+          alt=""
+          className="w-full h-[350px] object-cover"
+        />
       </div>
 
       <div className="mt-5 flex gap-5 justify-between px-10 text-center">

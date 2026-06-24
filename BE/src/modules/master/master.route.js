@@ -1,4 +1,6 @@
 import { successResponse } from "../../common/response.js";
+import { uploadController } from "../uploads/upload.controller.js";
+import { uploadService } from "../uploads/upload.service.js";
 import {
   categories_machineRepository,
   machinesRepository,
@@ -91,22 +93,27 @@ export default async function (fastify) {
     const type = await services.typesMachine.getByName(name);
     return successResponse(res, { data: type });
   });
-  fastify.post("/type-machine", async (req, res) => {
-    const body = req.body;
 
-    const getIdCategory = await services.categoriesMachine.getByName(
-      body.category,
+  // CREATE
+  fastify.post("/type-machine", async (req, res) => {
+    let body = req.body;
+
+    let category = await services.categoriesMachine.getByName(
+      body.category.value,
     );
 
-    const payload = {
-      name: body.name,
-      category_id: getIdCategory.id,
-      description: body.description,
+    let payload = {
+      ...body,
+      category_id: category.id,
     };
+    const result = await services.typesMachine.create(payload);
 
-    const newType = await services.typesMachine.create(payload);
-    return successResponse(res, { data: newType });
+    return successResponse(res, {
+      message: "UPLOAD TYPE SUCCESSFULLY!",
+      data: result,
+    });
   });
+
   fastify.put("/type-machine/:id", async (req, res) => {
     const { id } = req.params;
     let body = req.body;
@@ -137,7 +144,9 @@ export default async function (fastify) {
   });
 
   fastify.post("/machines", async (req, res) => {
-    const newMachine = await services.machines.create(req.body);
+    const body = req.body;
+    const newMachine = await services.machines.create(body);
+
     return successResponse(res, { data: newMachine });
   });
   fastify.put("/machines/:id", async (req, res) => {

@@ -30,6 +30,7 @@ export function MachinePage() {
   const handleSubmitAdd = async (data) => {
     try {
       let res = await api.post("/master/type-machine", data);
+
       await fetchTypeMachine(category, setTypeByName);
       showAlert({
         type: "success",

@@ -5,6 +5,8 @@ import authPlugin from "./plugins/auth.js";
 import dbPlugin from "./plugins/db.js";
 import routes from "./routes/index.js";
 import cookiePlugin from "./plugins/cookie.js";
+import multipart from "./plugins/multipart.js";
+import staticPlugin from "./plugins/getImage.js";
 
 const app = fastify({
   logger: {
@@ -25,6 +27,8 @@ await app.register(cookiePlugin);
 await app.register(jwtPlugin);
 await app.register(authPlugin);
 await app.register(dbPlugin);
+await app.register(multipart);
+await app.register(staticPlugin);
 await app.register(routes);
 
 app.get("/", async (request, reply) => {
