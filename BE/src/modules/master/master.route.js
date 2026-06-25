@@ -177,8 +177,13 @@ export default async function (fastify) {
     return successResponse(res, { data: roller });
   });
 
+  fastify.get("/roller/position/:positionId", async (req, res) => {
+    const { positionId } = req.params;
+    const roller = await services.rollers.getByPositionId(positionId);
+    return successResponse(res, { data: roller });
+  });
+
   fastify.post("/roller", async (req, res) => {
-    console.log(req.body);
     const newRoller = await services.rollers.create(req.body);
 
     return successResponse(res, { data: newRoller });

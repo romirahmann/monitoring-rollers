@@ -8,21 +8,28 @@ import { SharedButton } from "../../../shared/components/Button.jsx";
 import { SharedTable } from "../../../shared/components/table.jsx";
 import { useHistoryRoller } from "../hooks/use-history.js";
 import { Modal } from "../../../shared/components/Modal.jsx";
-import { useRollerByCategory } from "../hooks/use-rollers.js";
+
 import { useState } from "react";
 import { RollerForm } from "../components/RollerForm.jsx";
+import { useAlertStore } from "../../../store/alert-store.js";
+import { useRollerStore } from "../store/roller.store.js";
+import { useRollerByPosition } from "../hooks/use-rollers.js";
+import dayjs from "dayjs";
 
 export function DetailPage() {
   const navigate = useNavigate();
   const { machine_id, position_id } = useParams();
 
   useHistoryRoller(machine_id);
-  useRollerByCategory(machine_id);
+
   useMachine(machine_id);
   usePositionById(position_id);
+  useRollerByPosition(position_id);
 
+  const { showAlert } = useAlertStore();
   const machineById = useMachineStore((state) => state.machineById);
   const positionById = usePositionStore((state) => state.positionById);
+  const rollerByPosition = useRollerStore((state) => state.rollerByPosition);
 
   const [modalForm, setModalForm] = useState({
     isOpen: false,
@@ -62,6 +69,7 @@ export function DetailPage() {
       field: "code",
       header: "Roller Code",
       sortable: true,
+      render: (value) => <span className="font-semibold">{value}</span>,
     },
     {
       field: "point_no",
@@ -87,15 +95,35 @@ export function DetailPage() {
       field: "status",
       header: "Status",
       sortable: true,
+      render: (value) => (
+        <span
+          className={`${value === "ACTIVE" ? "text-white bg-green-800 px-3 py-1 rounded-md" : ""}`}
+        >
+          {value}
+        </span>
+      ),
     },
     {
       field: "installed_at",
       header: "Installed At",
       sortable: true,
+      render: (value) => dayjs(value).format("DD/MM/YYYY HH:mm:ss"),
     },
   ];
 
   const reportData = [];
+
+  const handleInsertRoller = async () => {
+    showAlert({
+      type: "success",
+      message: "Add Roller Successfully!",
+    });
+    setModalForm({
+      isOpen: false,
+      type: "",
+      data: null,
+    });
+  };
 
   return (
     <>
@@ -136,7 +164,10 @@ export function DetailPage() {
               Insert Roller
             </SharedButton>
           </div>
-          <SharedTable columns={rollerColumns}></SharedTable>
+          <SharedTable
+            columns={rollerColumns}
+            data={rollerByPosition || []}
+          ></SharedTable>
         </div>
 
         {/* <div className="bg-white border rounded-xl p-6">
@@ -166,8 +197,10 @@ export function DetailPage() {
         >
           <RollerForm
             mode={modalForm.type}
-            categoryMachineId={machine_id}
+            machineId={machine_id}
             initialData={modalForm.data}
+            positionId={position_id}
+            onSubmit={handleInsertRoller}
           />
         </Modal>
       </div>

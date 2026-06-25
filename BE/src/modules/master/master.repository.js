@@ -207,16 +207,21 @@ export const machinesRepository = (db) => ({
 export const rollersRepository = (db) => ({
   getAll: async () => {
     const rollers = await db("rollers as r")
-      .leftJoin("categories_machine as cm", "cm.id", "r.category_machine_id")
+      .leftJoin("positions as p", "p.id", "r.position_id")
+      .leftJoin("machines as m", "m.id", "r.machine_id")
+      .leftJoin("type_machine as tm", "tm.id", "r.id")
+      .leftJoin("categories_machine as cm", "cm.id", "tm.category_id")
       .select(
         "r.id",
         "r.code",
         "r.type",
         "r.status",
         "r.installed_at",
-        "r.category_machine_id",
-
+        "r.machine_id",
+        "m.name as machine_name",
+        "tm.name as type_machine_name",
         "cm.name as category_machine_name",
+        "p.position",
       );
 
     for (const roller of rollers) {
@@ -233,15 +238,21 @@ export const rollersRepository = (db) => ({
 
   getById: async (id) => {
     const roller = await db("rollers as r")
-      .leftJoin("categories_machine as cm", "cm.id", "r.category_machine_id")
+      .leftJoin("positions as p", "p.id", "r.position_id")
+      .leftJoin("machines as m", "m.id", "r.machine_id")
+      .leftJoin("type_machine as tm", "tm.id", "r.id")
+      .leftJoin("categories_machine as cm", "cm.id", "tm.category_id")
       .select(
         "r.id",
         "r.code",
         "r.type",
         "r.status",
         "r.installed_at",
-        "r.category_machine_id",
+        "r.machine_id",
+        "m.name as machine_name",
+        "tm.name as type_machine_name",
         "cm.name as category_machine_name",
+        "p.position",
       )
       .where("r.id", id)
       .first();
@@ -258,6 +269,49 @@ export const rollersRepository = (db) => ({
     return roller;
   },
 
+  getByPositionId: async (id) => {
+    const roller = await db("rollers as r")
+      .leftJoin("positions as p", "p.id", "r.position_id")
+      .leftJoin("machines as m", "m.id", "r.machine_id")
+      .leftJoin("type_machine as tm", "tm.id", "r.id")
+      .leftJoin("categories_machine as cm", "cm.id", "tm.category_id")
+      .select(
+        "r.id",
+        "r.code",
+        "r.type",
+        "r.status",
+        "r.installed_at",
+        "r.machine_id",
+        "m.name as machine_name",
+        "tm.name as type_machine_name",
+        "cm.name as category_machine_name",
+        "p.position",
+      )
+      .where("r.position_id", id)
+      .first();
+
+    if (!roller) return [];
+
+    const points = await db("roller_points")
+      .select("id", "point_no", "initial_size", "minimum_size")
+      .where("roller_id", roller.id)
+      .orderBy("point_no");
+
+    return points.map((point) => ({
+      id: point.id,
+      code: roller.code,
+      point_no: point.point_no,
+      initial_size: point.initial_size,
+      minimum_size: point.minimum_size,
+      type: roller.type,
+      status: roller.status,
+      installed_at: roller.installed_at,
+      machine_id: roller.machine_id,
+      machine_name: roller.machine_name,
+      position: roller.position,
+    }));
+  },
+
   create: async (data) => {
     const trx = await db.transaction();
 
@@ -268,7 +322,8 @@ export const rollersRepository = (db) => ({
         type: data.type,
         status: data.status,
         installed_at: data.installed_at,
-        category_machine_id: data.category_machine_id,
+        machine_id: data.machine_id,
+        position_id: data.position_id,
       };
 
       const [rollerId] = await trx("rollers").insert(rollerData);

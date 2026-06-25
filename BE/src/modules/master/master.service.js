@@ -165,7 +165,12 @@ export const rollersServices = ({ repository, fastify }) => ({
     const roller = await repository.getById(id);
     return roller;
   },
+  getByPositionId: async (id) => {
+    const roller = await repository.getByPositionId(id);
+    return roller;
+  },
   create: async (data) => {
+    console.log(data);
     const newRoller = await repository.create(data);
     return newRoller;
   },

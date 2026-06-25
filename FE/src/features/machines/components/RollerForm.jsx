@@ -5,7 +5,8 @@ import { api } from "../../../shared/api/axios.js";
 export function RollerForm({
   mode = "Add",
   initialData = null,
-  categoryMachineId,
+  machineId,
+  positionId,
   loading = false,
   onSubmit,
   onClose,
@@ -68,7 +69,7 @@ export function RollerForm({
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = {
@@ -76,7 +77,8 @@ export function RollerForm({
 
       code: form.code,
       type: "karet",
-      category_machine_id: Number(categoryMachineId),
+      machine_id: Number(machineId),
+      position_id: Number(positionId),
       installed_at: form.installed_at.replace("T", " "),
       status: "ACTIVE",
 
@@ -99,13 +101,13 @@ export function RollerForm({
     console.log(payload);
 
     try {
-      let res = api.post("/master/roller", payload);
+      let res = await api.post("/master/roller", payload);
       console.log(res);
     } catch (e) {
       console.log(e);
     }
 
-    // onSubmit(payload);
+    onSubmit(payload);
   };
 
   return (
