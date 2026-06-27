@@ -36,4 +36,8 @@ export const userServices = ({ userRepository, fastify }) => ({
     }
     await userRepository.delete(existing.id);
   },
+  getAllRoles: async () => {
+    const roles = await userRepository.getAllRole();
+    return roles;
+  },
 });

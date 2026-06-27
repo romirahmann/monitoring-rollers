@@ -65,7 +65,23 @@ export function TypePage({
     }
   };
 
-  const handleDeleteUnit = async () => {};
+  const handleDeleteUnit = async () => {
+    try {
+      console.log(modalDeleted);
+      let res = await api.delete(`/master/machines/${modalDeleted.data}`);
+      showAlert({
+        type: "success",
+        message: "Deleted Unit Successfully!",
+      });
+      setModalDeleted({ isOpen: false, data: null });
+    } catch (error) {
+      console.log(error);
+      showAlert({
+        type: "error",
+        message: "Delete Unit Failed",
+      });
+    }
+  };
 
   const handleDeleteMachine = async (machine, e) => {
     e.preventDefault();

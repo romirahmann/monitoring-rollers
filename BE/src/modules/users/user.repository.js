@@ -6,6 +6,7 @@ export const userRepository = (db) => ({
         "u.id",
         "u.username",
         "u.role_id",
+        "u.is_active",
         "u.created_at",
         "u.updated_at",
         "r.name as role_name",
@@ -20,6 +21,7 @@ export const userRepository = (db) => ({
         "u.id",
         "u.username",
         "u.role_id",
+        "u.is_active",
         "u.created_at",
         "u.updated_at",
         "r.name as role_name",
@@ -50,4 +52,5 @@ export const userRepository = (db) => ({
   delete: async (id) => {
     await db("users").where({ id }).del();
   },
+  getAllRole: async () => await db("roles").select("*"),
 });

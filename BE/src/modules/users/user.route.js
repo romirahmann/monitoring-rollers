@@ -35,4 +35,8 @@ export default async function (fastify) {
     await services.deletedPermanently(id);
     return successResponse(res, { message: "User deleted permanently" });
   });
+  fastify.get("/roles", async (req, res) => {
+    const roles = await services.getAllRoles();
+    return successResponse(res, { data: roles });
+  });
 }
