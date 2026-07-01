@@ -2,8 +2,8 @@ import { uploadService } from "../uploads/upload.service.js";
 
 // KATEGORI MESIN
 export const categoriesMachineServices = ({ repository, fastify }) => ({
-  getAll: async () => {
-    const categories = await repository.getAll();
+  getAll: async (search) => {
+    const categories = await repository.getAll(search);
     return categories;
   },
   getById: async (id) => {
@@ -59,15 +59,14 @@ export const typesMachineServices = ({ repository, fastify }) => ({
       filename = uploaded.filename;
     }
 
-    // console.log(name.value, description.value);
     const payload = {
       name: name?.value,
       description: description?.value,
-      category_id: category_id,
+      category_id: category_id.value,
       image: filename,
     };
 
-    // console.log("PAYLOAD CREATE TYPE MACHINE: ", category);
+    console.log("PAYLOAD: ", payload);
 
     const newType = await repository.create(payload);
     console.log("RETURN: ", newType);
@@ -76,15 +75,25 @@ export const typesMachineServices = ({ repository, fastify }) => ({
   },
   update: async (id, data) => {
     const exiting = await repository.getById(id);
+
     if (!exiting) {
       throw new Error("Type machine not found");
     }
 
-    let payload = {
-      name: data.name,
-      category_id: exiting.category_id,
-      description: data.description,
+    const { name, description, category_id } = data;
+
+    const payload = {
+      name: name.value,
+      description: description.value,
+      category_id: Number(category_id.value),
     };
+
+    if (data.image) {
+      const uploaded = await uploadService.saveFile(data.image);
+
+      payload.image = uploaded.filename;
+    }
+
     return await repository.update(id, payload);
   },
   softDelete: async (id) => {
@@ -109,8 +118,8 @@ export const typesMachineServices = ({ repository, fastify }) => ({
 
 // MESIN
 export const machinesServices = ({ repository, fastify }) => ({
-  getAll: async () => {
-    const machines = await repository.getAll();
+  getAll: async (search) => {
+    const machines = await repository.getAll(search);
     return machines;
   },
   getById: async (id) => {
@@ -144,7 +153,33 @@ export const machinesServices = ({ repository, fastify }) => ({
     if (!exiting) {
       throw new Error("Machine not found");
     }
-    return await repository.update(id, data);
+
+    let payload = null;
+    let filename = null;
+    let { name, unit, type_machine_id } = data;
+
+    if (data.image) {
+      const uploaded = await uploadService.saveFile(data.image);
+
+      filename = uploaded.filename;
+    }
+
+    if (filename) {
+      payload = {
+        name: name?.value,
+        unit: unit?.value,
+        type_machine_id: Number(type_machine_id?.value),
+        image: filename,
+      };
+    } else {
+      payload = {
+        name: name?.value,
+        unit: unit?.value,
+        type_machine_id: Number(type_machine_id?.value),
+      };
+    }
+
+    return await repository.update(id, payload);
   },
   delete: async (id) => {
     const exiting = await repository.getById(id);

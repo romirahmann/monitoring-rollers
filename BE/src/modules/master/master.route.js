@@ -42,7 +42,8 @@ export default async function (fastify) {
   // Routes for categories_machine
 
   fastify.get("/categories-machine", async (req, res) => {
-    const categories = await services.categoriesMachine.getAll();
+    const { search } = req.query;
+    const categories = await services.categoriesMachine.getAll(search);
     return successResponse(res, { data: categories });
   });
 
@@ -97,16 +98,17 @@ export default async function (fastify) {
   // CREATE
   fastify.post("/type-machine", async (req, res) => {
     let body = req.body;
+    // console.log(body.category_id);
 
-    let category = await services.categoriesMachine.getByName(
-      body.category.value,
-    );
+    // let category = await services.categoriesMachine.getByName(
+    //   body.category.value,
+    // );
 
-    let payload = {
-      ...body,
-      category_id: category.id,
-    };
-    const result = await services.typesMachine.create(payload);
+    // let payload = {
+    //   ...body,
+    //   category_id: category.id,
+    // };
+    const result = await services.typesMachine.create(body);
 
     return successResponse(res, {
       message: "UPLOAD TYPE SUCCESSFULLY!",
@@ -134,7 +136,8 @@ export default async function (fastify) {
 
   // Routes for machines
   fastify.get("/machines", async (req, res) => {
-    const machines = await services.machines.getAll();
+    const { search } = req.query;
+    const machines = await services.machines.getAll(search);
     return successResponse(res, { data: machines });
   });
   fastify.get("/machines/:id", async (req, res) => {
@@ -221,11 +224,14 @@ export default async function (fastify) {
 
   fastify.get("/positions/machine/:machine_id", async (req, res) => {
     const { machine_id } = req.params;
+    console.log(machine_id);
+
     const positions = await services.positions.getByMachineId(machine_id);
     return successResponse(res, { data: positions });
   });
 
   fastify.post("/position", async (req, res) => {
+    console.log(req.body);
     const newPosition = await services.positions.create(req.body);
     return successResponse(res, { data: newPosition });
   });

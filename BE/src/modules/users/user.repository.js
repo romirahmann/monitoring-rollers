@@ -1,6 +1,6 @@
 export const userRepository = (db) => ({
-  getAll: async () => {
-    const users = await db("users as u")
+  getAll: async (search = "") => {
+    const query = db("users as u")
       .leftJoin("roles as r", "r.id", "u.role_id")
       .select(
         "u.id",
@@ -11,7 +11,12 @@ export const userRepository = (db) => ({
         "u.updated_at",
         "r.name as role_name",
       );
-    return users;
+
+    if (search) {
+      query.where("u.username", "like", `%${search}%`);
+    }
+
+    return await query;
   },
   getByUsername: async (username) => {
     const user = await db("users as u")
@@ -52,5 +57,11 @@ export const userRepository = (db) => ({
   delete: async (id) => {
     await db("users").where({ id }).del();
   },
-  getAllRole: async () => await db("roles").select("*"),
+  getAllRole: async (search) => {
+    const query = db("roles").select("*");
+    if (search) {
+      query.where("name", "like", `%${search}%`);
+    }
+    return await query;
+  },
 });

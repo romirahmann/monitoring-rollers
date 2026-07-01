@@ -12,6 +12,7 @@ import { useAlertStore } from "../../../../shared/store/alert-store.js";
 import { useRole } from "../hooks/use-role.js";
 import { useRoleStore } from "../stores/role-store.js";
 import { getUsers } from "../services/fetchUser.js";
+import ConfirmModal from "../../../../shared/components/ConfirmModal.jsx";
 
 export default function UserPage() {
   const { loadUsers } = useUser();
@@ -19,18 +20,36 @@ export default function UserPage() {
   const { users } = UserStore((state) => state);
   const { roles } = useRoleStore();
   const { showAlert } = useAlertStore();
+
   const [formModal, setFormModal] = useState({
     isOpen: false,
     type: "Add",
     data: null,
   });
 
+  const [confirmDel, setConfirmDel] = useState({
+    isOpen: false,
+    id: null,
+  });
+
+  const handleSeacrh = async (query) => {
+    await loadUsers(query);
+  };
+
   const handleSubmit = async (data) => {
     try {
-      let res = await api.post(`/auth/register`, {
-        ...data,
-        role_id: Number(data.role_id),
-      });
+      if (formModal.type === "Edit") {
+        let res = await api.put(`/users/${formModal.data.id}`, {
+          ...data,
+          role_id: Number(data.role_id),
+        });
+      }
+      if (formModal.type === "Add") {
+        let res = await api.post(`/auth/register`, {
+          ...data,
+          role_id: Number(data.role_id),
+        });
+      }
 
       await loadUsers();
 
@@ -53,6 +72,24 @@ export default function UserPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!confirmDel.id) {
+      showAlert({ type: "error", message: "Id Not Found!" });
+    }
+
+    try {
+      let res = await api.delete(`/users/${confirmDel.id}`);
+      showAlert({ type: "succeess", message: "Deleted Successfully!" });
+
+      await loadUsers();
+
+      setConfirmDel({ isOpen: false, id: null });
+    } catch (err) {
+      console.log(err);
+      showAlert({ type: "error", message: "Id Not Found!" });
+    }
+  };
+
   return (
     <>
       {/* PAGE HEADER */}
@@ -68,7 +105,7 @@ export default function UserPage() {
             data: null,
           })
         }
-        onSearch={(keyword) => console.log(keyword)}
+        onSearch={(keyword) => handleSeacrh(keyword)}
       />
 
       {/* TABLE USER */}
@@ -116,13 +153,12 @@ export default function UserPage() {
             label: "Delete",
             icon: Trash2,
             variant: "danger",
-            onClick: (row) => console.log("Delete", row),
+            onClick: (row) => setConfirmDel({ isOpen: true, id: row.id }),
           },
         ]}
       />
 
       {/* MODAL */}
-
       <Modal
         isOpen={formModal.isOpen}
         title={`${formModal.type} User`}
@@ -135,6 +171,15 @@ export default function UserPage() {
           onSubmit={handleSubmit}
         />
       </Modal>
+
+      <ConfirmModal
+        open={confirmDel.isOpen}
+        title="Deleted Users"
+        message="are you sure want deleted this user?"
+        confirmText="Deleted"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDel({ isOpen: false, id: null })}
+      />
     </>
   );
 }

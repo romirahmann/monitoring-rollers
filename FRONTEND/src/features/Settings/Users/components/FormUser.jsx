@@ -11,7 +11,7 @@ export function UserForm({
     defaultValues: {
       username: defaultValues.username || "",
       password: "",
-      role_id: defaultValues.id || "",
+      role_id: defaultValues.role_id || "",
     },
   });
 

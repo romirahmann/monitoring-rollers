@@ -6,6 +6,11 @@ import { MainLayout } from "../layouts/MainLayout.jsx";
 import UserPage from "../features/Settings/Users/pages/UserPage.jsx";
 import DashboardPage from "../features/Dashboard/pages/Dashboard.jsx";
 import { ProtectedRoute } from "./protected-route.jsx";
+import RolePage from "../features/Settings/Roles/pages/RolePage.jsx";
+import CategoriesPage from "../features/MasterData/Categories/pages/CategoriesPage.jsx";
+import TypeMachinePage from "../features/MasterData/TypeMachine/pages/TypeMachinePage.jsx";
+import MachinePage from "../features/MasterData/Machines/pages/MachinePage.jsx";
+import PositionPage from "../features/MasterData/Positions/pages/PositionPage.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -28,8 +33,28 @@ export const router = createBrowserRouter([
             element: <DashboardPage />,
           },
           {
+            path: "/master/categories",
+            element: <CategoriesPage />,
+          },
+          {
+            path: "/master/type",
+            element: <TypeMachinePage />,
+          },
+          {
+            path: "/master/machines",
+            element: <MachinePage />,
+          },
+          {
+            path: "/master/machines/:machineId/position",
+            element: <PositionPage />,
+          },
+          {
             path: "/setting/users",
             element: <UserPage />,
+          },
+          {
+            path: "/setting/role",
+            element: <RolePage />,
           },
         ],
       },

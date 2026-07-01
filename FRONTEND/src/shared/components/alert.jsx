@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "lucide-react";
-
-import { useAlertStore } from "../../store/alert-store.js";
+import { useAlertStore } from "../store/alert-store.js";
 
 const variants = {
   success: {

@@ -8,7 +8,8 @@ export default async function (fastify) {
   const services = userServices({ userRepository: repository, fastify });
 
   fastify.get("/", async (req, res) => {
-    const users = await services.getAll();
+    const { search } = req.query;
+    const users = await services.getAll(search);
     return successResponse(res, { data: users });
   });
 
@@ -36,7 +37,8 @@ export default async function (fastify) {
     return successResponse(res, { message: "User deleted permanently" });
   });
   fastify.get("/roles", async (req, res) => {
-    const roles = await services.getAllRoles();
+    const { search } = req.params;
+    const roles = await services.getAllRoles(search);
     return successResponse(res, { data: roles });
   });
 }

@@ -24,12 +24,20 @@ export const menuRoutes = [
     children: [
       {
         label: "Categories",
-        path: "/categories",
+        path: "/master/categories",
+      },
+      {
+        label: "Type Machines",
+        path: "/master/type",
       },
       {
         label: "Machines",
-        path: "/machines",
+        path: "/master/machines",
       },
+      // {
+      //   label: "Position",
+      //   path: "/master/machine/:positionId/position",
+      // },
     ],
   },
   {
@@ -55,10 +63,10 @@ export const menuRoutes = [
     label: "Settings",
     icon: Settings,
     children: [
-      {
-        label: "Roles",
-        path: "/roles",
-      },
+      // {
+      //   label: "Roles",
+      //   path: "/setting/role",
+      // },
       {
         label: "Users",
         path: "/setting/users",

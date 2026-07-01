@@ -1,6 +1,6 @@
 export const userServices = ({ userRepository, fastify }) => ({
-  getAll: async () => {
-    const users = await userRepository.getAll();
+  getAll: async (query) => {
+    const users = await userRepository.getAll(query);
     return users;
   },
 
@@ -36,8 +36,8 @@ export const userServices = ({ userRepository, fastify }) => ({
     }
     await userRepository.delete(existing.id);
   },
-  getAllRoles: async () => {
-    const roles = await userRepository.getAllRole();
+  getAllRoles: async (search) => {
+    const roles = await userRepository.getAllRole(search);
     return roles;
   },
 });

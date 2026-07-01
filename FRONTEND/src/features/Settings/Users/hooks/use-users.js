@@ -10,8 +10,8 @@ export function useUser() {
     loadUsers();
   }, []);
 
-  async function loadUsers() {
-    const users = await getUsers();
+  async function loadUsers(query = "") {
+    const users = await getUsers(query);
     setUser(users);
   }
 

@@ -1,6 +1,12 @@
 // KATEGORI MESIN
 export const categories_machineRepository = (db) => ({
-  getAll: async () => await db("categories_machine").select("*"),
+  getAll: async (search) => {
+    let query = db("categories_machine").select("*");
+    if (search) {
+      query.where("name", "like", `%${search}%`);
+    }
+    return await query;
+  },
   getById: async (id) => {
     const category_machine = await db("categories_machine")
       .where({ id })
@@ -38,6 +44,7 @@ export const types_machineRepository = (db) => ({
         "tm.id",
         "tm.name",
         "tm.is_active",
+        "tm.description",
         "tm.category_id",
         "tm.image",
         "cm.name as category_name",
@@ -107,8 +114,8 @@ export const types_machineRepository = (db) => ({
 
 // MESIN
 export const machinesRepository = (db) => ({
-  getAll: async () => {
-    return await db("machines as m")
+  getAll: async (search) => {
+    let query = await db("machines as m")
       .leftJoin("type_machine as tm", "tm.id", "m.type_machine_id")
       .leftJoin("categories_machine as cm", "cm.id", "tm.category_id")
       .select(
@@ -122,6 +129,12 @@ export const machinesRepository = (db) => ({
         "tm.category_id",
         "cm.name as category_name",
       );
+
+    if (search) {
+      query.where("m.name", "like", `%${search}%`);
+    }
+
+    return await query;
   },
   getById: async (id) => {
     const machine = await db("machines as m")
