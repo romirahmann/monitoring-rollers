@@ -170,7 +170,8 @@ export default async function (fastify) {
 
   //   ROUTE FOR ROLLERS
   fastify.get("/rollers", async (req, res) => {
-    const rollers = await services.rollers.getAll();
+    const { search } = req.query;
+    const rollers = await services.rollers.getAll(search);
     return successResponse(res, { data: rollers });
   });
 

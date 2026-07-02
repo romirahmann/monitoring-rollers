@@ -218,27 +218,20 @@ export const machinesRepository = (db) => ({
 
 // ROLLERS
 export const rollersRepository = (db) => ({
-  getAll: async () => {
-    const rollers = await db("rollers as r")
-      .leftJoin("positions as p", "p.id", "r.position_id")
-      .leftJoin("machines as m", "m.id", "r.machine_id")
-      .leftJoin("type_machine as tm", "tm.id", "r.id")
-      .leftJoin("categories_machine as cm", "cm.id", "tm.category_id")
+  getAll: async (search) => {
+    let rollers = await db("rollers as r")
+      .leftJoin("categories_machine as cm", "cm.id", "r.category_id")
       .select(
         "r.id",
         "r.code",
         "r.type",
         "r.status",
-        "r.installed_at",
-        "r.machine_id",
-        "m.name as machine_name",
-        "tm.name as type_machine_name",
+        "r.category_id",
         "cm.name as category_machine_name",
-        "p.position",
       );
 
-    for (const roller of rollers) {
-      const points = await db("roller_points")
+    for (let roller of rollers) {
+      let points = await db("roller_points")
         .select("id", "point_no", "initial_size", "minimum_size")
         .where("roller_id", roller.id)
         .orderBy("point_no");
@@ -246,26 +239,25 @@ export const rollersRepository = (db) => ({
       roller.points = points;
     }
 
+    if (search) {
+      rollers = rollers.filter((roller) =>
+        roller.code.toLowerCase().includes(search.toLowerCase()),
+      );
+    }
+
     return rollers;
   },
 
   getById: async (id) => {
     const roller = await db("rollers as r")
-      .leftJoin("positions as p", "p.id", "r.position_id")
-      .leftJoin("machines as m", "m.id", "r.machine_id")
-      .leftJoin("type_machine as tm", "tm.id", "r.id")
-      .leftJoin("categories_machine as cm", "cm.id", "tm.category_id")
+      .leftJoin("categories_machine as cm", "cm.id", "r.category_id")
       .select(
         "r.id",
         "r.code",
         "r.type",
         "r.status",
-        "r.installed_at",
-        "r.machine_id",
-        "m.name as machine_name",
-        "tm.name as type_machine_name",
+        "r.category_id",
         "cm.name as category_machine_name",
-        "p.position",
       )
       .where("r.id", id)
       .first();
@@ -334,9 +326,7 @@ export const rollersRepository = (db) => ({
         code: data.code,
         type: data.type,
         status: data.status,
-        installed_at: data.installed_at,
-        machine_id: data.machine_id,
-        position_id: data.position_id,
+        category_id: Number(data.category_id),
       };
 
       const [rollerId] = await trx("rollers").insert(rollerData);
@@ -367,7 +357,14 @@ export const rollersRepository = (db) => ({
     try {
       const { points = [], ...rollerData } = data;
 
-      await trx("rollers").where({ id }).update(rollerData);
+      await trx("rollers")
+        .where({ id })
+        .update({
+          code: rollerData.code,
+          type: rollerData.type,
+          status: rollerData.status,
+          category_id: Number(rollerData.category_id),
+        });
 
       if (points.length > 0) {
         for (const point of points) {

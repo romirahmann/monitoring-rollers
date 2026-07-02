@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Eye, Pencil, Trash2, View } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 import { api } from "../../../../shared/api/axios.js";
+
 import { PageHeader } from "../../../../shared/components/PageHeader.jsx";
 import { SharedTable } from "../../../../shared/components/SharedTable.jsx";
 import { Modal } from "../../../../shared/components/Modal.jsx";
@@ -9,22 +10,22 @@ import ConfirmModal from "../../../../shared/components/ConfirmModal.jsx";
 
 import { useAlertStore } from "../../../../shared/store/alert-store.js";
 
-import { useMachine } from "../hooks/use-machine.js";
-import { useMachineStore } from "../stores/machine.store.js";
+import { RollerForm } from "../components/RollerForm.jsx";
 
-import { useTypeMachine } from "../../TypeMachine/hooks/use-type.js";
-import { useTypeMachineStore } from "../../TypeMachine/stores/type.store.js";
-import { MachineForm } from "../components/MachineForm.jsx";
+import { useRollerStore } from "../stores/roller.store.js";
+import { useCategoryStore } from "../../../MasterData/Categories/store/categories.store.js";
+import { useCategories } from "../../../MasterData/Categories/hooks/use-categories.js";
+import { useRoller } from "../hooks/useRoller.js";
 import { useNavigate } from "react-router-dom";
 
-export default function MachinePage() {
-  const { loadMachines } = useMachine();
-
-  useTypeMachine();
-
-  const machines = useMachineStore((state) => state.machines);
+export default function RollerPage() {
+  const { loadRollers } = useRoller();
   const navigate = useNavigate();
-  const typeMachines = useTypeMachineStore((state) => state.typeMachines);
+  useCategories();
+
+  const rollers = useRollerStore((state) => state.rollers);
+
+  const categories = useCategoryStore((state) => state.categories);
 
   const { showAlert } = useAlertStore();
 
@@ -40,22 +41,22 @@ export default function MachinePage() {
   });
 
   const handleSearch = async (keyword = "") => {
-    await loadMachines(keyword);
+    await loadRollers(keyword);
   };
 
-  const handleSubmit = async (formData) => {
+  const handleSubmit = async (data) => {
     try {
       if (formModal.type === "Add") {
-        await api.post("/master/machines", formData);
+        await api.post("/master/rollers", data);
       } else {
-        await api.put(`/master/machines/${formModal.data.id}`, formData);
+        await api.put(`/master/rollers/${formModal.data.id}`, data);
       }
 
-      await loadMachines();
+      await loadRollers();
 
       showAlert({
         type: "success",
-        message: `${formModal.type} Machine Successfully!`,
+        message: `${formModal.type} Roller Successfully!`,
       });
 
       setFormModal({
@@ -68,27 +69,20 @@ export default function MachinePage() {
 
       showAlert({
         type: "error",
-        message: `${formModal.type} Machine Failed!`,
+        message: `${formModal.type} Roller Failed!`,
       });
     }
   };
 
   const handleDelete = async () => {
-    if (!confirmDel.id) {
-      return showAlert({
-        type: "error",
-        message: "Machine not found!",
-      });
-    }
-
     try {
-      await api.delete(`/master/machines/${confirmDel.id}`);
+      await api.delete(`/master/roller/${confirmDel.id}`);
 
-      await loadMachines();
+      await loadRollers();
 
       showAlert({
         type: "success",
-        message: "Delete Machine Successfully!",
+        message: "Delete Roller Successfully!",
       });
 
       setConfirmDel({
@@ -96,11 +90,9 @@ export default function MachinePage() {
         id: null,
       });
     } catch (err) {
-      console.log(err);
-
       showAlert({
         type: "error",
-        message: "Delete Machine Failed!",
+        message: "Delete Roller Failed!",
       });
     }
   };
@@ -108,56 +100,40 @@ export default function MachinePage() {
   return (
     <>
       <PageHeader
-        title="Machine Management"
-        description="Kelola seluruh data mesin."
-        searchPlaceholder="Search machine..."
-        actionLabel="Add Machine"
-        onAction={() =>
-          setFormModal({
-            isOpen: true,
-            type: "Add",
-            data: null,
-          })
-        }
+        title="Roller Management"
+        description="Kelola seluruh data roller."
+        searchPlaceholder="Search roller..."
+        actionLabel="Add Roller"
+        onAction={() => navigate("/rollers/create")}
         onSearch={handleSearch}
       />
 
       <SharedTable
-        data={machines}
+        data={rollers}
         columns={[
           {
-            key: "name",
-            title: "Machine Name",
+            key: "code",
+            title: "Code",
           },
           {
-            key: "unit",
-            title: "Unit",
+            key: "type",
+            title: "Type",
           },
           {
-            key: "type_name", // atau type_machine_name sesuai response API
-            title: "Type Machine",
+            key: "category_machine_name",
+            title: "Category",
+          },
+          {
+            key: "status",
+            title: "Status",
           },
         ]}
-        currentPage={1}
-        totalPages={1}
-        onPageChange={() => {}}
         actions={[
-          {
-            label: "View",
-            icon: Eye,
-            onClick: (row) => {
-              navigate(`${row.id}/position`);
-            },
-          },
           {
             label: "Edit",
             icon: Pencil,
             onClick: (row) =>
-              setFormModal({
-                isOpen: true,
-                type: "Edit",
-                data: row,
-              }),
+              navigate(`/rollers/${row.id}/edit`, { state: { roller: row } }),
           },
           {
             label: "Delete",
@@ -174,7 +150,7 @@ export default function MachinePage() {
 
       <Modal
         isOpen={formModal.isOpen}
-        title={`${formModal.type} Machine`}
+        title={`${formModal.type} Roller`}
         onClose={() =>
           setFormModal({
             isOpen: false,
@@ -183,18 +159,18 @@ export default function MachinePage() {
           })
         }
       >
-        <MachineForm
+        <RollerForm
           mode={formModal.type}
           defaultValues={formModal.data || {}}
-          typeMachines={typeMachines}
+          categories={categories}
           onSubmit={handleSubmit}
         />
       </Modal>
 
       <ConfirmModal
         open={confirmDel.isOpen}
-        title="Delete Machine"
-        message="Are you sure want delete this machine?"
+        title="Delete Roller"
+        message="Are you sure want delete this roller?"
         confirmText="Delete"
         onConfirm={handleDelete}
         onCancel={() =>

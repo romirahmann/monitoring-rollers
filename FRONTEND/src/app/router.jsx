@@ -11,6 +11,11 @@ import CategoriesPage from "../features/MasterData/Categories/pages/CategoriesPa
 import TypeMachinePage from "../features/MasterData/TypeMachine/pages/TypeMachinePage.jsx";
 import MachinePage from "../features/MasterData/Machines/pages/MachinePage.jsx";
 import PositionPage from "../features/MasterData/Positions/pages/PositionPage.jsx";
+import RollerPage from "../features/Rollers/lists/pages/RollerPage.jsx";
+import { RollerForm } from "../features/Rollers/lists/components/RollerForm.jsx";
+import { RollerCreatePage } from "../features/Rollers/lists/pages/RollerCreatePage.jsx";
+import { RollerEditPage } from "../features/Rollers/lists/pages/RollerEditPage.jsx";
+import InstallationPage from "../features/Rollers/installations/pages/InstallationPage.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -47,6 +52,22 @@ export const router = createBrowserRouter([
           {
             path: "/master/machines/:machineId/position",
             element: <PositionPage />,
+          },
+          {
+            path: "/rollers",
+            element: <RollerPage />,
+          },
+          {
+            path: "/rollers/create",
+            element: <RollerCreatePage />,
+          },
+          {
+            path: "/rollers/:id/edit",
+            element: <RollerEditPage />,
+          },
+          {
+            path: "/installations",
+            element: <InstallationPage />,
           },
           {
             path: "/setting/users",

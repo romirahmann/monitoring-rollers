@@ -192,8 +192,8 @@ export const machinesServices = ({ repository, fastify }) => ({
 
 // ROLLERS
 export const rollersServices = ({ repository, fastify }) => ({
-  getAll: async () => {
-    const rollers = await repository.getAll();
+  getAll: async (search) => {
+    const rollers = await repository.getAll(search);
     return rollers;
   },
   getById: async (id) => {
@@ -205,7 +205,6 @@ export const rollersServices = ({ repository, fastify }) => ({
     return roller;
   },
   create: async (data) => {
-    console.log(data);
     const newRoller = await repository.create(data);
     return newRoller;
   },

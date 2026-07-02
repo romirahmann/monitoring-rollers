@@ -12,6 +12,7 @@ export function useCategories() {
 
   async function loadCategories(query = "") {
     const categories = await fetchCategories(query);
+    // console.log("Fetched categories:", categories);
     setCategories(categories);
   }
 
