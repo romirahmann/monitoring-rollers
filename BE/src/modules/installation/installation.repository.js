@@ -3,14 +3,18 @@ export const installationRepository = (db) => ({
     let query = db("installation_rollers as i")
       .leftJoin("rollers as r", "r.id", "i.roller_id")
       .leftJoin("positions as p", "p.id", "i.position_id")
+      .leftJoin("machines as m", "m.id", "p.machine_id")
       .leftJoin("categories_machine as cm", "cm.id", "r.category_id")
       .select(
         "i.id",
         "i.roller_id",
         "i.installation_date",
+        "i.installed_by",
         "r.code as roller_code",
         "p.position",
+        "p.id as position_id",
         "cm.name as category_name",
+        "m.name as machine_name",
       );
 
     if (search) {

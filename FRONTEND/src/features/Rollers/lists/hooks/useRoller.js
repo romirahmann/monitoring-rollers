@@ -12,7 +12,7 @@ export function useRoller() {
 
   async function loadRollers(query = "") {
     const rollers = await fetchRollers(query);
-    console.log("Fetched rollers:", rollers);
+    // console.log("Fetched rollers:", rollers);
     setRollers(rollers);
   }
 

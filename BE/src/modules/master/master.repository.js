@@ -399,7 +399,15 @@ export const positionsRepository = (db) => ({
   getAll: async () =>
     await db("positions as p")
       .leftJoin("machines as m", "m.id", "p.machine_id")
-      .select("p.*", "m.name as machine_name"),
+      .leftJoin("type_machine as tm", "tm.id", "m.type_machine_id")
+      .leftJoin("categories_machine as cm", "cm.id", "tm.category_id")
+      .select(
+        "p.*",
+        "m.name as machine_name",
+        "cm.id as category_id",
+        "tm.name as type_machine_name",
+        "cm.name as category_name",
+      ),
 
   getById: async (id) => {
     const position = await db("positions as p")

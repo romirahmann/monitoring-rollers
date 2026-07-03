@@ -1,25 +1,74 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useAllPositions } from "../../../MasterData/Positions/hooks/use-position.js";
+import { usePositionStore } from "../../../MasterData/Positions/stores/position.store.js";
+import dayjs from "dayjs";
 
 export function InstallationForm({
   mode = "Add",
   rollers = [],
-  positions = [],
   defaultValues = {},
   loading = false,
   onSubmit,
 }) {
   const data = defaultValues ?? {};
-
   const isAdd = mode === "Add";
 
   const [form, setForm] = useState({
     roller_id: data.roller_id || "",
     position_id: data.position_id || "",
-    installation_date:
-      data.installation_date || new Date().toISOString().split("T")[0],
+    installation_date: dayjs(data.installation_date).format("YYYY-MM-DD"),
     installed_by: data.installed_by || "",
   });
 
+  // Load semua position sekali
+  useAllPositions();
+
+  const positions = usePositionStore((state) => state.allPositions);
+
+  /**
+   * Roller yang dipilih
+   */
+  const selectedRoller = useMemo(() => {
+    return rollers.find(
+      (roller) => Number(roller.id) === Number(form.roller_id),
+    );
+  }, [rollers, form.roller_id]);
+
+  /**
+   * Filter position berdasarkan category roller
+   */
+  const filteredPositions = useMemo(() => {
+    if (!selectedRoller) return [];
+
+    return positions
+      .filter(
+        (position) =>
+          Number(position.category_id) === Number(selectedRoller.category_id),
+      )
+      .sort((a, b) => {
+        if (a.machine_name !== b.machine_name) {
+          return a.machine_name.localeCompare(b.machine_name);
+        }
+
+        return Number(a.position) - Number(b.position);
+      });
+  }, [positions, selectedRoller]);
+
+  /**
+   * Reset position ketika roller berubah
+   */
+  useEffect(() => {
+    if (!isAdd) return;
+
+    setForm((prev) => ({
+      ...prev,
+      position_id: "",
+    }));
+  }, [form.roller_id, isAdd]);
+
+  /**
+   * Handle Input
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -29,14 +78,17 @@ export function InstallationForm({
     }));
   };
 
+  /**
+   * Submit
+   */
   const submit = (e) => {
     e.preventDefault();
-
+    // console.log("form", form);
     onSubmit(form);
   };
 
   return (
-    <form onSubmit={submit} className="space-y-6">
+    <form onSubmit={submit} className="space-y-5">
       {/* Roller */}
       <div>
         <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -82,6 +134,7 @@ export function InstallationForm({
           value={form.position_id}
           onChange={handleChange}
           required
+          disabled={!selectedRoller}
           className="
             w-full
             rounded-xl
@@ -93,13 +146,17 @@ export function InstallationForm({
             outline-none
             transition
             focus:border-blue-500
+            disabled:bg-slate-100
+            disabled:cursor-not-allowed
           "
         >
-          <option value="">Select Position</option>
+          <option value="">
+            {selectedRoller ? "Select Position" : "Select Roller First"}
+          </option>
 
-          {positions.map((position) => (
+          {filteredPositions.map((position) => (
             <option key={position.id} value={position.id}>
-              {position.machine_name} - {position.name}
+              {position.machine_name} - Position {position.position}
             </option>
           ))}
         </select>

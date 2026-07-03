@@ -7,16 +7,20 @@ import { useInstallations } from "../hooks/use-installation.js";
 import { useInstallationStore } from "../stores/installation.store.js";
 import { Modal } from "../../../../shared/components/Modal.jsx";
 import { InstallationForm } from "../components/installationForm.jsx";
-import { usePosition } from "../../../MasterData/Positions/hooks/use-position.js";
+import {
+  useAllPositions,
+  usePosition,
+} from "../../../MasterData/Positions/hooks/use-position.js";
 import { usePositionStore } from "../../../MasterData/Positions/stores/position.store.js";
 import { useRoller } from "../../lists/hooks/useRoller.js";
 import { useRollerStore } from "../../lists/stores/roller.store.js";
+import { api } from "../../../../shared/api/axios.js";
 export default function InstallationPage() {
-  useInstallations();
+  const { loadInstallations } = useInstallations();
   const installations = useInstallationStore((state) => state.installations);
 
-  usePosition();
-  const positions = usePositionStore((state) => state.positions);
+  useAllPositions();
+  const positions = usePositionStore((state) => state.allPositions);
 
   useRoller();
   const rollers = useRollerStore((state) => state.rollers);
@@ -29,6 +33,30 @@ export default function InstallationPage() {
   const { showAlert } = useAlertStore();
 
   const handleSearch = (keyword) => {};
+  const handleSubmit = async (form) => {
+    try {
+      if (formModal.type === "Add") {
+        let res = await api.post("/installations", form);
+      }
+      if (formModal.type === "Edit") {
+        let res = await api.put(`/installations/${formModal.data.id}`, form);
+      }
+
+      loadInstallations();
+
+      showAlert({
+        type: "success",
+        message: "Form submitted successfully!",
+      });
+      setFormModal({ ...formModal, isOpen: false });
+    } catch (e) {
+      console.error("Error submitting form:", e);
+      showAlert({
+        type: "error",
+        message: "Failed to submit the form. Please try again.",
+      });
+    }
+  };
 
   return (
     <>
@@ -48,10 +76,10 @@ export default function InstallationPage() {
       />
 
       <SharedTable
-        data={[]}
+        data={installations}
         columns={[
           {
-            key: "code ",
+            key: "roller_code",
             title: "Roller Code",
           },
           {
@@ -103,6 +131,7 @@ export default function InstallationPage() {
           positions={positions}
           defaultValues={formModal.data || {}}
           onClose={() => setFormModal({ ...formModal, isOpen: false })}
+          onSubmit={handleSubmit}
         />
       </Modal>
     </>
