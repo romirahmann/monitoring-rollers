@@ -274,6 +274,48 @@ export const rollersRepository = (db) => ({
     return roller;
   },
 
+  getByMachineId: async (id) => {
+    const roller = await db("rollers as r")
+      .leftJoin("positions as p", "p.id", "r.position_id")
+      .leftJoin("machines as m", "m.id", "r.machine_id")
+      .leftJoin("type_machine as tm", "tm.id", "r.id")
+      .leftJoin("categories_machine as cm", "cm.id", "tm.category_id")
+      .select(
+        "r.id",
+        "r.code",
+        "r.type",
+        "r.status",
+        "r.machine_id",
+        "m.name as machine_name",
+        "tm.name as type_machine_name",
+        "cm.name as category_machine_name",
+        "p.position",
+      )
+      .where("r.machine_id", id)
+      .first();
+
+    if (!roller) return [];
+
+    const points = await db("roller_points")
+      .select("id", "point_no", "initial_size", "minimum_size")
+      .where("roller_id", roller.id)
+      .orderBy("point_no");
+
+    return points.map((point) => ({
+      id: point.id,
+      code: roller.code,
+      point_no: point.point_no,
+      initial_size: point.initial_size,
+      minimum_size: point.minimum_size,
+      type: roller.type,
+      status: roller.status,
+      installed_at: roller.installed_at,
+      machine_id: roller.machine_id,
+      machine_name: roller.machine_name,
+      position: roller.position,
+    }));
+  },
+
   getByPositionId: async (id) => {
     const roller = await db("rollers as r")
       .leftJoin("positions as p", "p.id", "r.position_id")

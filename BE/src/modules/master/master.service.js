@@ -200,6 +200,10 @@ export const rollersServices = ({ repository, fastify }) => ({
     const roller = await repository.getById(id);
     return roller;
   },
+  getByMachineId: async (id) => {
+    const roller = await repository.getByMachineId(id);
+    return roller;
+  },
   getByPositionId: async (id) => {
     const roller = await repository.getByPositionId(id);
     return roller;

@@ -7,6 +7,10 @@ export const inspectionsServices = ({ repository, fastify }) => ({
     const inspection = await repository.getById(id);
     return inspection;
   },
+  getInpectionByMachineId: async (id) => {
+    const inspection = await repository.getByMachineId(id);
+    return inspection;
+  },
   createInspection: async (data) => {
     const newInspection = await repository.create(data);
     return newInspection;

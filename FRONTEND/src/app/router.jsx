@@ -16,6 +16,9 @@ import { RollerForm } from "../features/Rollers/lists/components/RollerForm.jsx"
 import { RollerCreatePage } from "../features/Rollers/lists/pages/RollerCreatePage.jsx";
 import { RollerEditPage } from "../features/Rollers/lists/pages/RollerEditPage.jsx";
 import InstallationPage from "../features/Rollers/installations/pages/InstallationPage.jsx";
+import InspectionsPage from "../features/inspections/pages/inspections.jsx";
+import InspectionDetailPage from "../features/inspections/pages/detail.jsx";
+import InspectionFormPage from "../features/inspections/pages/InspectionPageForm.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +40,19 @@ export const router = createBrowserRouter([
             path: "/",
             element: <DashboardPage />,
           },
+          {
+            path: "/inspections",
+            element: <InspectionsPage />,
+          },
+          {
+            path: "/inspections/:id/detail",
+            element: <InspectionDetailPage />,
+          },
+          {
+            path: "/inspections/create",
+            element: <InspectionFormPage />,
+          },
+
           {
             path: "/master/categories",
             element: <CategoriesPage />,

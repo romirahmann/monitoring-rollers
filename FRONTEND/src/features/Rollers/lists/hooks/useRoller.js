@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 
-import { fetchRollers } from "../services/fetchRollers.js";
+import {
+  fetchRollerByMachine,
+  fetchRollers,
+} from "../services/fetchRollers.js";
 import { useRollerStore } from "../stores/roller.store.js";
 
 export function useRoller() {
@@ -18,5 +21,23 @@ export function useRoller() {
 
   return {
     loadRollers,
+  };
+}
+
+export function useRollerByMachineId(id) {
+  const setRollerByMachine = useRollerStore(
+    (state) => state.setRollerByMachine,
+  );
+
+  useEffect(() => {
+    loadRollerByMachine(id);
+  }, []);
+  async function loadRollerByMachine(id) {
+    const rollers = await fetchRollerByMachine(id);
+    setRollerByMachine(rollers);
+  }
+
+  return {
+    loadRollerByMachine,
   };
 }

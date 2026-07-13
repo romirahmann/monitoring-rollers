@@ -28,6 +28,15 @@ export default async function (fastify) {
     return successResponse(res, { data: inspection });
   });
 
+  fastify.get("/machine/:id", async (req, res) => {
+    const { id } = req.params;
+    const inspection = await services.inspections.getInpectionByMachineId(id);
+    if (!inspection) {
+      return res.status(404).send({ message: "Inspection not found" });
+    }
+    return successResponse(res, { data: inspection });
+  });
+
   fastify.post("/", async (req, res) => {
     const newInspection = await services.inspections.createInspection(req.body);
     return successResponse(res, { data: newInspection });

@@ -180,7 +180,11 @@ export default async function (fastify) {
     const roller = await services.rollers.getById(id);
     return successResponse(res, { data: roller });
   });
-
+  fastify.get("/roller/machine/:id", async (req, res) => {
+    const { id } = req.params;
+    const roller = await services.rollers.getByMachineId(id);
+    return successResponse(res, { data: roller });
+  });
   fastify.get("/roller/position/:positionId", async (req, res) => {
     const { positionId } = req.params;
     const roller = await services.rollers.getByPositionId(positionId);

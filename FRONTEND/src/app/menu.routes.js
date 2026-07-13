@@ -16,7 +16,7 @@ export const menuRoutes = [
   {
     label: "Inspection",
     icon: History,
-    path: "/inspection",
+    path: "/inspections",
   },
   {
     label: "Master Data",

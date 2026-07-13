@@ -5,3 +5,8 @@ export async function fetchRollers(query = "") {
 
   return res.data.data;
 }
+
+export async function fetchRollerByMachine(id) {
+  const res = await api.get(`/inspections/machine/${id}`);
+  return res.data.data;
+}
